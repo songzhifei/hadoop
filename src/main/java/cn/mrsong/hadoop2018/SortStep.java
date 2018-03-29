@@ -7,30 +7,74 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import cn.mrsong.hadoop2018.SumStep.SumMapper;
+import cn.mrsong.hadoop2018.SumStep.SumReducer;
 
 
 public class SortStep {
 
 	public static void main(String[] args) throws Exception {
+		
+		
 		Configuration conf = new Configuration();
+		
 		Job job = Job.getInstance(conf);
-		job.setJarByClass(SortStep.class);
-		job.setMapperClass(SortMapper.class);
-		job.setMapOutputKeyClass(InfoBean.class);
-		job.setMapOutputValueClass(NullWritable.class);
+		job.setJarByClass(SumStep.class);
+		job.setMapperClass(SumMapper.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(InfoBean.class);
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		
-		job.setReducerClass(SortReducer.class);
-		job.setOutputKeyClass(InfoBean.class);
-		job.setMapOutputValueClass(NullWritable.class);
+		job.setReducerClass(SumReducer.class);
+		job.setOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(InfoBean.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		
-		job.waitForCompletion(true);
+		
+		Job job2 = Job.getInstance(conf);
+		job2.setJarByClass(SortStep.class);
+		job2.setMapperClass(SortMapper.class);
+		job2.setMapOutputKeyClass(InfoBean.class);
+		job2.setMapOutputValueClass(NullWritable.class);
+		FileInputFormat.setInputPaths(job2, new Path(args[1]));
+		
+		job2.setReducerClass(SortReducer.class);
+		job2.setOutputKeyClass(InfoBean.class);
+		job2.setMapOutputValueClass(NullWritable.class);
+		FileOutputFormat.setOutputPath(job2, new Path(args[2]));
+		
+		ControlledJob aJob = new ControlledJob(job.getConfiguration());
+		ControlledJob bJob = new ControlledJob(job2.getConfiguration());
+		
+		aJob.setJob(job);
+		bJob.setJob(job2);
+		
+		//指定依赖关系
+		bJob.addDependingJob(aJob);
+		
+		JobControl jc = new JobControl("统计排序");
+		
+		jc.addJob(aJob);
+		jc.addJob(bJob);
+		
+		Thread thread = new Thread(jc);
+		
+		thread.start();
+		
+		while (!jc.allFinished()) {
+			Thread.sleep(500);
+		}
+		
+		jc.stop();
+		//job2.waitForCompletion(true);
 
 	}
 	public static class SortMapper extends Mapper<LongWritable, Text, InfoBean, NullWritable>{

@@ -60,7 +60,7 @@ public class SortStep {
 		//指定依赖关系
 		bJob.addDependingJob(aJob);
 		
-		JobControl jc = new JobControl("统计排序");
+		JobControl jc = new JobControl("排序");
 		
 		jc.addJob(aJob);
 		jc.addJob(bJob);

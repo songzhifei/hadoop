@@ -22,6 +22,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Administrator/.m2/repository/io/netty/netty-all/4.0.23.Final/netty-all-4.0.23.Final.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

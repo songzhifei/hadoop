@@ -16,7 +16,8 @@ public class HbaseDemo {
 
 		Configuration conf = HBaseConfiguration.create();
 		conf.set("hbase.zookeeper.property.clientPort","2181");
-		
+		conf.set("hbase.zookeeper.quorum","192.168.112.133:2181,192.168.1.22:2181,192.168.112.134:2181");
+		conf.set("hbase.master", "http://192.168.112.133:60010");
 		HBaseAdmin admin = new HBaseAdmin(conf);
 		if (!admin.tableExists("test")) {
 		    HTableDescriptor tableDesc=new HTableDescriptor(TableName.valueOf("test"));

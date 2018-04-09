@@ -70,8 +70,22 @@ public class HbaseDemo {
 		Get get = new Get(Bytes.toBytes("kr0001"));
 		Result result = table.get(get);
 		table.close();
-	  	String string =	result.getFamilyMap(Bytes.toBytes("data")).toString();
+	  	//String string =	result.getFamilyMap(Bytes.toBytes("data")).toString();
 	  	System.out.println(result.getValue(Bytes.toBytes("data"), Bytes.toBytes(1)));
+	} 
+	@Test
+	public void test_getAll() throws Exception{
+		HTable table = new HTable(conf,"people");
+		List<Get> gets = new ArrayList<Get>();
+		for(int i=1;i<100;i++) {
+			Get get = new Get(Bytes.toBytes("kr"+i));
+			gets.add(get);
+		}
+		Result[] results = table.get(gets);
+		for (Result result : results) {
+			System.out.println(result.getValue(Bytes.toBytes("info"), Bytes.toBytes("money")));
+		}
+		table.close();
 	} 
 	public static void main(String[] args) throws Exception, ZooKeeperConnectionException, IOException {
 		/*

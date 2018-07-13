@@ -30,7 +30,7 @@ public class GetStar {
 		
 		job.setReducerClass(ActorReducer.class);
 		job.setOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setOutputValueClass(Text.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		job.waitForCompletion(true);
